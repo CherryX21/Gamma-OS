@@ -5,6 +5,7 @@
 #include "console.hpp"
 #include "timer.hpp"
 #include "keyboard.hpp"
+#include "fs.hpp"
 #include "heap.hpp"
 #include "vmm.hpp"
 #include "gdt.hpp"
@@ -173,6 +174,9 @@ extern "C" void kmain()
 
     gamma::heap_init();
     gamma::heap_self_test();
+
+    gamma::vfs_init();
+    gamma::vfs_self_test();
 
     asm volatile("int3");
     gamma::kprintf("[idt] execution resumed after breakpoint\n");
