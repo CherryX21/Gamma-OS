@@ -54,7 +54,6 @@ void str_copy(char* dst, const char* src, size_t max_len) {
     dst[i] = '\0';
 }
 
-// Формує абсолютний шлях із поточного робочого каталогу g_cwd та аргументу.
 void build_path(const char* input, char* out, size_t out_size) {
     if (input == nullptr || input[0] == '\0') {
         str_copy(out, g_cwd, out_size);
@@ -119,7 +118,7 @@ void cmd_pwd(int, char**, const char*) {
 }
 
 void cmd_cd(int argc, char** argv, const char*) {
-    if (argc < 2 || str_eq(argv[1], "/")) {
+    if (argc < 2 || str_eq(argv[1], "/") || str_eq(argv[1], "~")) {
         str_copy(g_cwd, "/", sizeof(g_cwd));
         return;
     }
@@ -225,7 +224,6 @@ void cmd_write(int argc, char** argv, const char* raw_args) {
     char target[kMaxPathLen];
     build_path(argv[1], target, sizeof(target));
 
-    // Пропускаємо ім'я файлу та пробіли у raw_args, щоб записати весь залишок рядка.
     const char* p = raw_args;
     while (*p == ' ') p++;
     while (*p != '\0' && *p != ' ') p++;
@@ -260,7 +258,6 @@ void cmd_rm(int argc, char** argv, const char*) {
 void cmd_reboot(int, char**, const char*) {
     kprintf("Rebooting system...\n");
     asm volatile("cli");
-    // Скидання процесора через лінію Reset контролера клавіатури PS/2 (порт 0x64).
     while ((inb(0x64) & 0x02) != 0) {}
     outb(0x64, 0xFE);
     halt_forever();
@@ -300,10 +297,15 @@ void execute_line(char* line) {
         return;
     }
 
-    // Знаходимо початок аргументів до того, як розіб'ємо рядок нуль-термінаторами.
+    // Копіюємо сирі аргументи в окремий буфер до того, як розіб'ємо line на argv.
+    char raw_args[kMaxLineLen + 1] = {};
     char* after_cmd = p;
     while (*after_cmd != '\0' && *after_cmd != ' ') after_cmd++;
-    const char* raw_args = (*after_cmd == ' ') ? (after_cmd + 1) : "";
+    if (*after_cmd == ' ') {
+        const char* src = after_cmd + 1;
+        while (*src == ' ') src++;
+        str_copy(raw_args, src, sizeof(raw_args));
+    }
 
     char* argv[kMaxArgs];
     int argc = 0;
