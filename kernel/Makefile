@@ -60,6 +60,8 @@ test:
 > ./build/test_bitmap
 > $(HOSTCXX) -std=c++20 -O1 -g -Wall -Wextra -DGAMMA_HOST_TEST -Isrc tests/test_heap.cpp src/heap.cpp -o build/test_heap
 > ./build/test_heap
+> $(HOSTCXX) -std=c++20 -O1 -g -Wall -Wextra -DGAMMA_HOST_TEST -Isrc tests/test_fs.cpp src/fs.cpp -o build/test_fs
+> ./build/test_fs
 
 # Інтеграційний тест: ядро збирається з GAMMA_AUTOTEST і завершує QEMU кодом виходу.
 # Успіх відповідає коду 1 ((0 << 1) | 1), помилка — іншому значенню або тайм-ауту.
