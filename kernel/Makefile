@@ -10,7 +10,7 @@ LIMINE_DIR ?= ../limine
 BUILD ?= build
 ISO ?= iso_root
 EXTRA_FLAGS ?=
-QEMU_ACCEL ?=
+QEMU_ACCEL ?= -enable-kvm -cpu host
 
 ifdef FAULT
 EXTRA_FLAGS += -DGAMMA_FAULT_$(FAULT)
@@ -61,7 +61,7 @@ test:
 
 qemu-test:
 > $(MAKE) BUILD=build-test ISO=iso_test EXTRA_FLAGS="-DGAMMA_AUTOTEST" image
-> timeout 90 qemu-system-x86_64 $(QEMU_COMMON) -drive format=raw,file=fat:rw:iso_test -serial stdio -display none -no-reboot -device isa-debug-exit,iobase=0xf4,iosize=0x04; rc=$$?; if [ $$rc -eq 1 ]; then echo "QEMU TEST PASSED"; else echo "QEMU TEST FAILED (exit code $$rc)"; exit 1; fi
+> timeout 90 qemu-system-x86_64 $(QEMU_COMMON) -drive format=raw,file=fat:rw:iso_test -display none -serial stdio < /dev/null -no-reboot -device isa-debug-exit,iobase=0xf4,iosize=0x04; rc=$$?; if [ $$rc -eq 1 ]; then echo "QEMU TEST PASSED"; else echo "QEMU TEST FAILED (exit code $$rc)"; exit 1; fi
 
 check: test qemu-test
 
