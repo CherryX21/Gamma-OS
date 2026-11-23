@@ -5,6 +5,8 @@
 #include "console.hpp"
 #include "timer.hpp"
 #include "keyboard.hpp"
+#include "heap.hpp"
+#include "vmm.hpp"
 #include "gdt.hpp"
 #include "interrupts.hpp"
 #include "io.hpp"
@@ -166,6 +168,11 @@ extern "C" void kmain()
                    static_cast<uint64_t>(gamma::g_pmm.free_pages() * gamma::kPageSize / (1024 * 1024)),
                    static_cast<uint64_t>(gamma::g_pmm.bitmap_pages() * gamma::kPageSize / 1024));
     gamma::pmm_self_test();
+    gamma::vmm_init();
+    gamma::vmm_self_test();
+
+    gamma::heap_init();
+    gamma::heap_self_test();
 
     asm volatile("int3");
     gamma::kprintf("[idt] execution resumed after breakpoint\n");
